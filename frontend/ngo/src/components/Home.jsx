@@ -6,6 +6,7 @@ const Home = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [villageName, setVillageName] = useState('');
     const [villages, setVillages] = useState([]);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleFetchVillages = async () => {
@@ -26,6 +27,7 @@ const Home = () => {
         if (!villageName.trim()) return;
 
         try {
+            setLoading(true);
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/villages/create`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -39,8 +41,25 @@ const Home = () => {
             } else {
                 console.error('Failed to add village');
             }
+            setLoading(false);
         } catch (error) {
             console.error('Error adding village:', error);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/villages/delete/${id}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                await handleFetchVillages();
+            } else {
+                console.log(res);
+                console.error('Failed to delete village');
+            }
+        } catch (error) {
+            console.error('Error deleting village:', error);
         }
     };
 
@@ -68,12 +87,16 @@ const Home = () => {
                 {villages.map((village) => (
                     <div
                         key={village._id}
-                        onClick={() => handleCardClick(village._id)}
-                        className="cursor-pointer bg-white p-4 rounded-xl shadow-md border hover:shadow-lg transition"
+
+                        className="cursor-pointer bg-white p-4 rounded-xl shadow-md border hover:shadow-lg transition flex justify-between items-center"
                     >
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="text-lg font-semibold text-gray-800" onClick={() => handleCardClick(village._id)}>
                             {capitalizeAllWords(village.villageName)}
                         </h3>
+                        <div className='flex gap-3'>
+                            <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onClick={() => handleDelete(village._id)}>Delete</button>
+                            {/* <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => handleEdit(village._id)}>Edit</button> */}
+                        </div>
                     </div>
                 ))}
             </div>
@@ -107,6 +130,7 @@ const Home = () => {
                             </button>
                             <button
                                 onClick={handleAdd}
+                                disabled={loading}
                                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                             >
                                 Add

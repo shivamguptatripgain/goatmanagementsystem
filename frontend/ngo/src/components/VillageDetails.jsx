@@ -1,22 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import SingleBenificiaryCard from './SingleBenificiaryCard';
+import { formatDate } from '../utils/important';
 
 const VillageDetails = () => {
     const { id } = useParams();
     const [village, setVillage] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [edit, setEdit] = useState(false);
     const [formData, setFormData] = useState({
         beneficiaryName: '',
         contactNumber: '',
         numberOfGoats: '',
         disease: '',
-        dateOfReceiving: '',
         kidsMale: '',
         kidsFemale: '',
-        initialWeight: '',
-        weightAfter2Months: '',
-        villageId: id
+        // initialWeight: '',
+        // weightAfter2Months: '',
+        villageId: id,
+        husbandName: '',
+        dateOfReceiving: '',
+        vaccination: '',
+        deworming: '',
+        camp: '',
+        goat_kid: ''
+
     });
 
     useEffect(() => {
@@ -45,11 +53,12 @@ const VillageDetails = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        let url = edit ? `update-beneficiary/${formData._id}` : 'create';
+        let method = edit ? 'PATCH' : 'POST';
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create`, {
-                method: 'POST',
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/${url}`, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...formData }),
             });
@@ -65,8 +74,13 @@ const VillageDetails = () => {
                     dateOfReceiving: '',
                     kidsMale: '',
                     kidsFemale: '',
-                    initialWeight: '',
-                    weightAfter2Months: '',
+                    // initialWeight: '',
+                    // weightAfter2Months: '',
+                    husbandName: '',
+                    vaccination: '',
+                    deworming: '',
+                    camp: '',
+                    goat_kid: ''
                 });
             } else {
                 alert('Failed to add beneficiary');
@@ -78,7 +92,15 @@ const VillageDetails = () => {
 
     if (!village) return <div className="p-4">Loading...</div>;
 
-    console.log(village);
+    const handleEdit = (data) => {
+        setIsModalOpen(true);
+        setEdit(true);
+        setFormData({
+            ...data, dateOfReceiving: formatDate(data.dateOfReceiving),
+
+        });
+
+    }
 
     return (
         <div className="p-6" style={{
@@ -86,23 +108,22 @@ const VillageDetails = () => {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            minHeight: '100vh',
             opacity: '0.9'
         }}>
             <h1 className="text-2xl font-bold mb-4">{village.name}</h1>
-            <button
+            {!isModalOpen && <button
                 onClick={() => setIsModalOpen(true)}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
                 Add Beneficiary
-            </button>
+            </button>}
             <div className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {village.map((b) => (
-                    <SingleBenificiaryCard key={b._id} beneficiary={b} />
+                    <SingleBenificiaryCard key={b._id} beneficiary={b} handleEdit={handleEdit} />
                 ))}
             </div>
             {isModalOpen && (
-                <div className="fixed inset-0 bg-blue-100 bg-opacity-40 flex items-center justify-center z-50">
+                <div className="inset-0  bg-opacity-40 flex items-center justify-center z-50">
                     <form
                         className="max-w-3xl w-full mx-auto p-8 bg-white rounded-2xl shadow-lg"
                         onSubmit={handleSubmit}
@@ -122,6 +143,15 @@ const VillageDetails = () => {
                                 value={formData.beneficiaryName}
                                 onChange={handleChange}
                                 placeholder='Beneficiary Name'
+                                required
+                                className="input-style"
+                            />
+                            <input
+                                type='text'
+                                name="husbandName"
+                                value={formData.husbandName}
+                                onChange={handleChange}
+                                placeholder='Husband Name'
                                 required
                                 className="input-style"
                             />
@@ -152,14 +182,7 @@ const VillageDetails = () => {
                                 required
                                 className="input-style"
                             />
-                            <input
-                                type='date'
-                                name="dateOfReceiving"
-                                value={formData.dateOfReceiving}
-                                onChange={handleChange}
-                                required
-                                className="input-style"
-                            />
+
                             <input
                                 type='number'
                                 name="kidsMale"
@@ -178,7 +201,7 @@ const VillageDetails = () => {
                                 required
                                 className="input-style"
                             />
-                            <input
+                            {/* <input
                                 type='number'
                                 name="initialWeight"
                                 value={formData.initialWeight}
@@ -186,8 +209,8 @@ const VillageDetails = () => {
                                 placeholder='Initial Goat Weight (kg)'
                                 required
                                 className="input-style"
-                            />
-                            <input
+                            /> */}
+                            {/* <input
                                 type='number'
                                 name="weightAfter2Months"
                                 value={formData.weightAfter2Months}
@@ -195,7 +218,62 @@ const VillageDetails = () => {
                                 placeholder='Weight After 2 Months (kg)'
                                 required
                                 className="input-style"
-                            />
+                            /> */}
+                            <div>
+                                <label>Goat Provided</label>
+                                <input
+                                    type='date'
+                                    name="dateOfReceiving"
+                                    value={formData.dateOfReceiving}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-style"
+                                />
+                            </div>
+                            <div>
+                                <label>Goat Kid</label>
+                                <input
+                                    type='date'
+                                    name="goat_kid"
+                                    value={formData.goat_kid && formatDate(formData.goat_kid)}
+                                    onChange={handleChange}
+
+                                    className="input-style"
+                                />
+                            </div>
+                            <div>
+                                <label>Vaccination</label>
+                                <input
+                                    type='date'
+                                    name="vaccination"
+                                    value={formData.vaccination && formatDate(formData.vaccination)}
+                                    onChange={handleChange}
+
+                                    className="input-style"
+                                />
+                            </div>
+                            <div>
+                                <label>Deworming</label>
+                                <input
+                                    type='date'
+                                    name="deworming"
+                                    value={formData.deworming && formatDate(formData.deworming)}
+                                    onChange={handleChange}
+
+                                    className="input-style"
+                                />
+                            </div>
+                            <div>
+                                <label>Camp</label>
+                                <input
+                                    type='date'
+                                    name="camp"
+                                    value={formData.camp && formatDate(formData.camp)}
+                                    onChange={handleChange}
+
+                                    className="input-style"
+                                />
+                            </div>
                         </div>
                         <div className="mt-8 flex justify-end gap-4">
                             <button
@@ -209,7 +287,7 @@ const VillageDetails = () => {
                                 type="submit"
                                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl shadow-md"
                             >
-                                Submit
+                                {edit ? 'Edit' : "Submit"}
                             </button>
                         </div>
                     </form>
