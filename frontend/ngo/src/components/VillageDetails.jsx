@@ -38,7 +38,7 @@ const VillageDetails = () => {
     };
     useEffect(() => {
         handleFetchVillage();
-    });
+    },[]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
