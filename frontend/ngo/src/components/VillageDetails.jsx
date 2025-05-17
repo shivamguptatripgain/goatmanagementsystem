@@ -26,22 +26,19 @@ const VillageDetails = () => {
         goat_kid: ''
 
     });
+    const handleFetchVillage = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/villages/${id}`);
+            const data = await res.json();
+            setVillage(data.benificiaries || []);
 
+        } catch (error) {
+            console.error('Error fetching village details:', error);
+        }
+    };
     useEffect(() => {
-        const fetchVillage = async () => {
-            try {
-                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/villages/${id}`);
-                const data = await res.json();
-                console.log(data);
-                setVillage(data.benificiaries || []);
-
-            } catch (error) {
-                console.error('Error fetching village details:', error);
-            }
-        };
-
-        fetchVillage();
-    }, [id]);
+        handleFetchVillage();
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
