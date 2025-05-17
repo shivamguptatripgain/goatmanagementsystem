@@ -28,7 +28,7 @@ const VillageDetails = () => {
     });
     const handleFetchVillage = async () => {
         try {
-            const res = await fetch(`https://goatmanagementbackend.onrender.com/api/v1/events/villages/${id}`);
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/villages/${id}`);
             const data = await res.json();
             setVillage(data.benificiaries || []);
 
